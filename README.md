@@ -7,15 +7,17 @@ You can find these terms of service at http://code.google.com/apis/maps/iphone/t
 
 The sample contains hard coded strings for addresses, you should change them.
 
+Follow me on twitter: @DrAma78
+
 LICENSE MIT
 
 /****************************************************************************
 
 INPUT
 
-NSString * aStartPoint: address or comma seprated GPS coordinates.
+NSString * aStartPoint: address or comma separated GPS coordinates.
 
-NSString * anEndPoint: address or comma seprated GPS coordinates.
+NSString * anEndPoint: address or comma separated GPS coordinates.
 
 NSString * anAddress: address that should be validated.
 
