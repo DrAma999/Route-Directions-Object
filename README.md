@@ -27,7 +27,8 @@ NSString * anAddress: address that should be validated.
 /****************************************************************************
 
 OUTPUT
-NSError * error: contains an error object that could be related to newworking, json parsing, or invalis adresses and routes. USe [error localizedDescription] to show the error cause.
+
+NSError * error: contains an error object that could be related to networking, json parsing, or invalis adresses and routes. Use [error localizedDescription] to show the error cause.
 
 NSDictionary * routeDistance: a dictionary with two key-value. Key "text" will ask for a fomatted distance text, key "value" will ask for a number that represents the distance in meters.
 
