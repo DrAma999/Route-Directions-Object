@@ -6,7 +6,8 @@ Since it uses GMAPS API you should comply to Google Mobile Maps terms of service
 You can find these terms of service at http://code.google.com/apis/maps/iphone/terms.html.
 
 The sample contains hard coded strings for addresses, you should change them.
-Many thank to Ankit Srivastava for the Polyline Decoding Algorithm.
+
+Many thanks to Ankit Srivastava for the Polyline Decoding Algorithm.
 
 Follow me on twitter: @DrAma78
 
