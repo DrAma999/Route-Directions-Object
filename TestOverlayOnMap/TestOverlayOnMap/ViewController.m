@@ -62,7 +62,7 @@
     }
     self.mappa.showsUserLocation = NO;
 }
-//VEDERE COME SETTA LA REGIONE PER IL PERCORSO E CAPIRE COME E DOVE METTERE I PIN DI INIZIO E DI FINE
+
 
 - (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay {
     MKPolylineView *polylineView = [[MKPolylineView alloc] initWithPolyline:overlay];
