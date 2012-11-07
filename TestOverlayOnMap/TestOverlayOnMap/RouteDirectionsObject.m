@@ -67,17 +67,26 @@
         *anError = [NSError errorWithDomain:@"it.cloudintouch.routedirectionsobject" code:100 userInfo:errorDetail];
         return;
     }
-    self.legs = [self.routes valueForKeyPath:@"legs"];
-    self.steps = [self.legs valueForKeyPath:@"steps"];
-    self.duration = [self.legs valueForKeyPath:@"duration"];
-    self.distance = [self.legs valueForKeyPath:@"distance"];
-    
-    NSDictionary *route = [routes lastObject]; 
+    self.legs = [[self.routes objectAtIndex:0] valueForKeyPath:@"legs"];
+    self.steps = [[self.legs objectAtIndex:0] valueForKeyPath:@"steps"];
+    self.duration = [[self.legs valueForKeyPath:@"duration"]lastObject];
+    self.distance = [[self.legs valueForKeyPath:@"distance"]lastObject];
+    NSDictionary * startPointDict = [[self.legs valueForKeyPath:@"start_location"]lastObject];
+    NSDictionary * endPointDict = [[self.legs valueForKeyPath:@"end_location"]lastObject];
+    self.startPoint = [[CLLocation alloc]initWithLatitude:[[startPointDict objectForKey:@"lat" ]doubleValue] longitude:[[startPointDict objectForKey:@"lng" ]doubleValue] ];
+    self.endPoint = [[CLLocation alloc]initWithLatitude:[[endPointDict objectForKey:@"lat" ]doubleValue]  longitude:[[endPointDict objectForKey:@"lng" ]doubleValue] ];
+    NSDictionary *route = [routes objectAtIndex:0];
     if (route) {
         self.overviewPolyLine = [[[self.routes valueForKeyPath: @"overview_polyline"] valueForKeyPath:@"points"]objectAtIndex:0];
         self.polylinePointsLocations = [self decodePolyLine:overviewPolyLine];
-        self.startPoint = [self.polylinePointsLocations objectAtIndex:0];
-        self.endPoint = [self.polylinePointsLocations lastObject];
+        CLLocation * endPointPoly = [self.polylinePointsLocations lastObject];
+        float threshold = [self.endPoint distanceFromLocation:endPointPoly];
+        if (fabs(threshold)>1000) {
+            NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];
+            [errorDetail setValue:@"Inconsistent polyline" forKey:NSLocalizedDescriptionKey];
+            *anError = [NSError errorWithDomain:@"it.cloudintouch.routedirectionsobject" code:300 userInfo:errorDetail];
+        }
+        
         self.directions = [self.steps valueForKeyPath:@"html_instructions"];
         self.line = [self createMKPolylineAnnotation];
 
@@ -105,6 +114,7 @@
 }
 
 -(NSMutableArray *)decodePolyLine:(NSString *)encodedStr {
+ 
     NSMutableString *encoded = [[NSMutableString alloc] initWithCapacity:[encodedStr length]];
     [encoded appendString:encodedStr];
     [encoded replaceOccurrencesOfString:@"\\\\" withString:@"\\"
@@ -180,6 +190,8 @@
     [parameters setObject:[NSString stringWithFormat:@"%@", aStartPoint] forKey:@"origin"];
     [parameters setObject:[NSString stringWithFormat:@"%@", anEndPoint] forKey:@"destination"];
     [parameters setObject:@"true" forKey:@"sensor"];
+    [parameters setObject:([[[NSLocale preferredLanguages]objectAtIndex:0] isEqualToString:@"it"] ? @"it" : @"en") forKey:@"language"];
+    [parameters setObject:@"driving" forKey:@"mode"];
     
     NSURL * requestURL = [self generateURL:string params:parameters];
     NSLog(@"%@",requestURL);
@@ -197,9 +209,17 @@
                 return ;
             }
             [weakSelf createData:object andError:&error];
-            if (error) {
-                weakSelf.callBackBlock(error, nil, nil, nil, nil, nil, nil, nil, nil);
-                return ;
+            if (error ) {
+                
+                if (error.code == 300){
+                    
+                    weakSelf.callBackBlock(nil, self.distance, self.duration, nil, self.routes, self.steps, self.startPoint, self.endPoint, self.directions);
+                    return;
+                }
+                else{
+                    weakSelf.callBackBlock(error, nil, nil, nil, nil, nil, nil, nil, nil);
+                    return ;
+                }
             }
             weakSelf.callBackBlock(nil, self.distance, self.duration, self.line, self.routes, self.steps, self.startPoint, self.endPoint, self.directions);
 
